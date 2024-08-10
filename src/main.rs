@@ -1,13 +1,23 @@
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use crossterm::{event, ExecutableCommand};
+
 use stupidcube::cube::StupidCube;
 use stupidcube::r#move::Move;
+
+fn render(cube: &StupidCube) -> anyhow::Result<()> {
+    let mut stdout = std::io::stdout();
+    stdout.execute(crossterm::terminal::Clear(
+        crossterm::terminal::ClearType::All,
+    ))?;
+    println!("{}", cube);
+    Ok(())
+}
 
 fn main() -> anyhow::Result<()> {
     let mut cube = StupidCube::new();
     let mut stdout = std::io::stdout();
 
-    println!("{}", cube);
+    render(&cube)?;
 
     loop {
         let eve = event::read()?;
@@ -21,7 +31,7 @@ fn main() -> anyhow::Result<()> {
                     stdout.execute(crossterm::terminal::Clear(
                         crossterm::terminal::ClearType::FromCursorUp,
                     ))?;
-                    println!("{}", cube);
+                    render(&cube)?;
                     continue;
                 }
                 KeyCode::Esc => break,
@@ -32,10 +42,10 @@ fn main() -> anyhow::Result<()> {
         };
 
         if let Err(e) = cube.make_move(move_) {
-            println!("An error occurred: {}", e);
+            eprintln!("An error occurred: {}", e);
         }
 
-        println!("{}", cube);
+        render(&cube)?
     }
 
     Ok(())

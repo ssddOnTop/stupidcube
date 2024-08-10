@@ -1,6 +1,8 @@
+use std::fmt::{Display, Formatter};
+
 use crate::faces::Colours;
 use crate::r#move::{Column, Face, Move, Row};
-use std::fmt::Display;
+
 pub const DIM: usize = 3;
 pub const FACES: usize = 6;
 
@@ -16,6 +18,19 @@ static ROW_MOVES: [Moves; DIM] = [
     ([0, 1, 2], [36, 37, 38], [18, 19, 20], [45, 46, 47]), // Top row
     ([3, 4, 5], [39, 40, 41], [21, 22, 23], [48, 49, 50]), // Middle row
     ([6, 7, 8], [42, 43, 44], [24, 25, 26], [51, 52, 53]), // Bottom row
+];
+
+static INDICES: [[usize; 9]; 6] = [
+    // Top face
+    [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    // Left, Front, Right faces
+    [9, 10, 11, 12, 13, 14, 15, 16, 17],
+    [18, 19, 20, 21, 22, 23, 24, 25, 26],
+    [27, 28, 29, 30, 31, 32, 33, 34, 35],
+    // Bottom face
+    [36, 37, 38, 39, 40, 41, 42, 43, 44],
+    // Back face
+    [45, 46, 47, 48, 49, 50, 51, 52, 53],
 ];
 
 #[derive(Default)]
@@ -145,14 +160,14 @@ impl Default for StupidCube {
                 vec![Colours::Yellow; DIM],
             ],
             vec![
-                vec![Colours::Orange; DIM],
-                vec![Colours::Orange; DIM],
-                vec![Colours::Orange; DIM],
+                vec![Colours::Magenta; DIM],
+                vec![Colours::Magenta; DIM],
+                vec![Colours::Magenta; DIM],
             ],
             vec![
-                vec![Colours::Brown; DIM],
-                vec![Colours::Brown; DIM],
-                vec![Colours::Brown; DIM],
+                vec![Colours::Cyan; DIM],
+                vec![Colours::Cyan; DIM],
+                vec![Colours::Cyan; DIM],
             ],
         ];
         let cube = cube
@@ -168,35 +183,45 @@ impl Default for StupidCube {
 }
 
 impl Display for StupidCube {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let cube = &self.faces;
-        let mut s = String::new();
-        for (i, colour) in cube.iter().enumerate() {
-            if i % 3 == 0 {
-                s.push_str("------------\n");
-                if i > 0 && i % 9 == 0 {
-                    s.push_str("\n------------\n");
-                }
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        const PADDING: &str = "       ";
+
+        for row in 0..3 {
+            write!(f, "{}", PADDING)?; // Padding for top face
+            for col in 0..3 {
+                write!(f, "{} ", self.faces[INDICES[0][row * 3 + col]].as_str())?;
             }
-            s.push_str(&format!(
-                " {} |{}",
-                to_ascii(colour),
-                if ((i + 1) % 3) == 0 { "\n" } else { "" }
-            ));
+            writeln!(f)?;
         }
 
-        s.push_str("------------");
-        write!(f, "{}", s)
-    }
-}
+        for row in 0..3 {
+            for (i, face) in INDICES.iter().enumerate().take(3 + 1).skip(1) {
+                for col in 0..3 {
+                    write!(f, "{} ", self.faces[face[row * 3 + col]].as_str())?;
+                }
+                if i < 3 {
+                    write!(f, " ")?; // Padding between faces
+                }
+            }
+            writeln!(f)?;
+        }
 
-fn to_ascii(colour: &Colours) -> char {
-    match colour {
-        Colours::White => 'W',
-        Colours::Blue => 'B',
-        Colours::Red => 'R',
-        Colours::Yellow => 'Y',
-        Colours::Orange => 'O',
-        Colours::Brown => 'N',
+        for row in 0..3 {
+            write!(f, "{}", PADDING)?; // Padding for bottom face
+            for col in 0..3 {
+                write!(f, "{} ", self.faces[INDICES[4][row * 3 + col]].as_str())?;
+            }
+            writeln!(f)?;
+        }
+
+        for row in 0..3 {
+            write!(f, "{}", PADDING)?; // Padding for back face
+            for col in 0..3 {
+                write!(f, "{} ", self.faces[INDICES[5][row * 3 + col]].as_str())?;
+            }
+            writeln!(f)?;
+        }
+
+        Ok(())
     }
 }
