@@ -1,3 +1,5 @@
+use crate::cube::{DIM, FACES};
+
 #[derive(Clone, Default)]
 pub struct Face(usize);
 
@@ -34,21 +36,38 @@ pub enum Move {
     Pos((Face, Row, Column, Box<Move>)),
 }
 
-// TODO: switch to TryFrom and check max indices/faces
-impl From<usize> for Column {
-    fn from(val: usize) -> Self {
-        Self(val)
+impl TryFrom<usize> for Column {
+    type Error = anyhow::Error;
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        if value > DIM {
+            Err(anyhow::anyhow!("Invalid column index"))
+        } else {
+            Ok(Self(value))
+        }
     }
 }
 
-impl From<usize> for Row {
-    fn from(val: usize) -> Self {
-        Self(val)
+impl TryFrom<usize> for Row {
+    type Error = anyhow::Error;
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        if value > DIM {
+            Err(anyhow::anyhow!("Invalid row index"))
+        } else {
+            Ok(Self(value))
+        }
     }
 }
 
-impl From<usize> for Face {
-    fn from(val: usize) -> Self {
-        Self(val)
+impl TryFrom<usize> for Face {
+    type Error = anyhow::Error;
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        if value > FACES {
+            Err(anyhow::anyhow!("Invalid face index"))
+        } else {
+            Ok(Self(value))
+        }
     }
 }

@@ -31,7 +31,9 @@ fn main() -> anyhow::Result<()> {
             continue;
         };
 
-        cube.make_move(move_);
+        if let Err(e) = cube.make_move(move_) {
+            println!("An error occurred: {}", e);
+        }
 
         println!("{}", cube);
     }
