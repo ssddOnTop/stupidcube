@@ -1,10 +1,10 @@
 use crossterm::event::{Event, KeyCode, KeyEvent};
 use crossterm::{event, ExecutableCommand};
-use stupidcube::cube::RubiksCube;
+use stupidcube::cube::StupidCube;
 use stupidcube::r#move::Move;
 
 fn main() -> anyhow::Result<()> {
-    let mut cube = RubiksCube::new();
+    let mut cube = StupidCube::new();
     let mut stdout = std::io::stdout();
 
     println!("{}", cube);

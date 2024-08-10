@@ -23,12 +23,12 @@ struct Selection {
     col: Column,
 }
 
-pub struct RubiksCube {
+pub struct StupidCube {
     faces: Vec<Colours>,
     selection: Selection,
 }
 
-impl RubiksCube {
+impl StupidCube {
     pub fn new() -> Self {
         Default::default()
     }
@@ -117,7 +117,7 @@ impl RubiksCube {
     }
 }
 
-impl Default for RubiksCube {
+impl Default for StupidCube {
     fn default() -> Self {
         let cube = vec![
             vec![
@@ -156,14 +156,14 @@ impl Default for RubiksCube {
             .flat_map(|v| v.into_iter().flatten().collect::<Vec<_>>())
             .collect::<Vec<_>>();
 
-        RubiksCube {
+        StupidCube {
             faces: cube,
             selection: Selection::default(),
         }
     }
 }
 
-impl Display for RubiksCube {
+impl Display for StupidCube {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let cube = &self.faces;
         let mut s = String::new();
