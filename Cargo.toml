@@ -1,0 +1,10 @@
+[package]
+edition = "2021"
+name = "stupidcube"
+version = "2.0.0"
+
+[dependencies]
+anyhow = "1.0.82"
+strum_macros = "0.26.4"
+crossterm = "0.28.1"
+
