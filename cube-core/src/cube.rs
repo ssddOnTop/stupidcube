@@ -40,11 +40,72 @@ struct Selection {
     col: Column,
 }
 
+#[derive(derive_getters::Getters)]
 pub struct StupidCube {
     faces: Vec<Colours>,
     selection: Selection,
+    rotation_x: f32,
+    rotation_y: f32,
+    rotation_z: f32,
 }
 
+// TODO: merge this with the other impl block
+impl StupidCube {
+    pub fn rotate_x(&mut self, angle: f32) {
+        self.rotation_x += angle;
+    }
+
+    pub fn rotate_y(&mut self, angle: f32) {
+        self.rotation_y += angle;
+    }
+
+    pub fn rotate_z(&mut self, angle: f32) {
+        self.rotation_z += angle;
+    }
+    pub fn rotate_point(&self, x: f32, y: f32, z: f32) -> (f32, f32, f32) {
+        let (sin_x, cos_x) = self.rotation_x.to_radians().sin_cos();
+        let (sin_y, cos_y) = self.rotation_y.to_radians().sin_cos();
+        let (sin_z, cos_z) = self.rotation_z.to_radians().sin_cos();
+
+        // Rotate around X-axis
+        let (y, z) = (y * cos_x - z * sin_x, y * sin_x + z * cos_x);
+        // Rotate around Y-axis
+        let (x, z) = (x * cos_y + z * sin_y, -x * sin_y + z * cos_y);
+        // Rotate around Z-axis
+        let (x, y) = (x * cos_z - y * sin_z, x * sin_z + y * cos_z);
+
+        (x, y, z)
+    }
+    pub fn project_point(&self, x: f32, y: f32, z: f32, width: u32, height: u32) -> (u32, u32) {
+        // Simple perspective projection
+        let fov = 50.0;
+        let distance = 4.0;
+        let factor = fov / (distance + z);
+        let x_proj = x * factor + width as f32 / 2.0;
+        let y_proj = y * factor + height as f32 / 2.0;
+
+        (x_proj as u32, y_proj as u32)
+    }
+    pub fn face_normal(&self, face: [usize; 4], vertices: &[(f32, f32, f32)]) -> (f32, f32, f32) {
+        let (x1, y1, z1) = vertices[face[0]];
+        let (x2, y2, z2) = vertices[face[1]];
+        let (x3, y3, z3) = vertices[face[2]];
+
+        let u = (x2 - x1, y2 - y1, z2 - z1);
+        let v = (x3 - x1, y3 - y1, z3 - z1);
+
+        (
+            u.1 * v.2 - u.2 * v.1,
+            u.2 * v.0 - u.0 * v.2,
+            u.0 * v.1 - u.1 * v.0,
+        )
+    }
+
+    pub fn is_face_visible(&self, face: [usize; 4], vertices: &[(f32, f32, f32)]) -> bool {
+        let normal = self.face_normal(face, vertices);
+        normal.2 < 0.0
+    }
+}
 impl StupidCube {
     pub fn new() -> Self {
         Default::default()
@@ -178,6 +239,9 @@ impl Default for StupidCube {
         StupidCube {
             faces: cube,
             selection: Selection::default(),
+            rotation_x: 0.0,
+            rotation_y: 0.0,
+            rotation_z: 0.0,
         }
     }
 }
